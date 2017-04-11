@@ -44,10 +44,10 @@ public extension EasyTipView {
      - parameter preferences: The preferences which will configure the EasyTipView.
      - parameter delegate:    The delegate.
      */
-    public class func show(animated: Bool = true, forItem item: UIBarItem, withinSuperview superview: UIView? = nil, text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
+    public class func show(animated: Bool = true, forItem item: UIBarItem, withinSuperview superview: UIView? = nil, attributedText: NSAttributedString, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
         
         if let view = item.view {
-            show(animated: animated, forView: view, withinSuperview: superview, text: text, preferences: preferences, delegate: delegate)
+            show(animated: animated, forView: view, withinSuperview: superview, attributedText: attributedText, preferences: preferences, delegate: delegate)
         }
     }
     
@@ -61,9 +61,9 @@ public extension EasyTipView {
      - parameter preferences: The preferences which will configure the EasyTipView.
      - parameter delegate:    The delegate.
      */
-    public class func show(animated: Bool = true, forView view: UIView, withinSuperview superview: UIView? = nil, text:  String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
+    public class func show(animated: Bool = true, forView view: UIView, withinSuperview superview: UIView? = nil, attributedText:  NSAttributedString, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
         
-        let ev = EasyTipView(text: text, preferences: preferences, delegate: delegate)
+        let ev = EasyTipView(attributedText: attributedText, preferences: preferences, delegate: delegate)
         ev.show(animated: animated, forView: view, withinSuperview: superview)
     }
     
@@ -181,10 +181,10 @@ open class EasyTipView: UIView {
             public var foregroundColor     = UIColor.white
             public var backgroundColor     = UIColor.red
             public var arrowPosition       = ArrowPosition.any
-            public var textAlignment       = NSTextAlignment.center
+//            public var textAlignment       = NSTextAlignment.center
             public var borderWidth         = CGFloat(0)
             public var borderColor         = UIColor.clear
-            public var font                = UIFont.systemFont(ofSize: 15)
+//            public var font                = UIFont.systemFont(ofSize: 15)
         }
         
         public struct Positioning {
@@ -234,24 +234,22 @@ open class EasyTipView: UIView {
         
         let type = "'\(String(reflecting: type(of: self)))'".components(separatedBy: ".").last!
         
-        return "<< \(type) with text : '\(text)' >>"
+        return "<< \(type) with text : '\(attributedText)' >>"
     }
     
     fileprivate weak var presentingView: UIView?
     fileprivate weak var delegate: EasyTipViewDelegate?
     fileprivate var arrowTip = CGPoint.zero
     fileprivate(set) open var preferences: Preferences
-    open let text: String
+    open let attributedText: NSAttributedString
     
     // MARK: - Lazy variables -
     
     fileprivate lazy var textSize: CGSize = {
         
         [unowned self] in
-        
-        var attributes = [NSFontAttributeName : self.preferences.drawing.font]
-        
-        var textSize = self.text.boundingRect(with: CGSize(width: self.preferences.positioning.maxWidth, height: CGFloat.greatestFiniteMagnitude), options: NSStringDrawingOptions.usesLineFragmentOrigin, attributes: attributes, context: nil).size
+
+        var textSize = self.attributedText.boundingRect(with: CGSize(width: self.preferences.positioning.maxWidth, height: CGFloat.greatestFiniteMagnitude), options: .usesLineFragmentOrigin, context: nil).size
         
         textSize.width = ceil(textSize.width)
         textSize.height = ceil(textSize.height)
@@ -278,9 +276,9 @@ open class EasyTipView: UIView {
     
     // MARK:- Initializer -
     
-    public init (text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
+    public init (attributedText: NSAttributedString, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
         
-        self.text = text
+        self.attributedText = attributedText
         self.preferences = preferences
         self.delegate = delegate
         
@@ -515,15 +513,9 @@ open class EasyTipView: UIView {
     }
     
     fileprivate func drawText(_ bubbleFrame: CGRect, context : CGContext) {
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.alignment = preferences.drawing.textAlignment
-        paragraphStyle.lineBreakMode = NSLineBreakMode.byWordWrapping
-        
-        
         let textRect = CGRect(x: bubbleFrame.origin.x + (bubbleFrame.size.width - textSize.width) / 2, y: bubbleFrame.origin.y + (bubbleFrame.size.height - textSize.height) / 2, width: textSize.width, height: textSize.height)
         
-        
-        text.draw(in: textRect, withAttributes: [NSFontAttributeName : preferences.drawing.font, NSForegroundColorAttributeName : preferences.drawing.foregroundColor, NSParagraphStyleAttributeName : paragraphStyle])
+        attributedText.draw(in: textRect)
     }
     
     override open func draw(_ rect: CGRect) {
