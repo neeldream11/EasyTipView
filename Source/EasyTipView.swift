@@ -44,6 +44,14 @@ public extension EasyTipView {
      - parameter preferences: The preferences which will configure the EasyTipView.
      - parameter delegate:    The delegate.
      */
+    
+    public class func show(animated: Bool = true, forItem item: UIBarItem, withinSuperview superview: UIView? = nil, text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
+        
+        if let view = item.view {
+            show(animated: animated, forView: view, withinSuperview: superview, text: text, preferences: preferences, delegate: delegate)
+        }
+    }
+    
     public class func show(animated: Bool = true, forItem item: UIBarItem, withinSuperview superview: UIView? = nil, attributedText: NSAttributedString, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
         
         if let view = item.view {
@@ -61,6 +69,16 @@ public extension EasyTipView {
      - parameter preferences: The preferences which will configure the EasyTipView.
      - parameter delegate:    The delegate.
      */
+    
+    public class func show(animated: Bool = true, forView view: UIView, withinSuperview superview: UIView? = nil, text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
+        
+        let attributedText = NSAttributedString(string: text, attributes:
+            [NSFontAttributeName: preferences.drawing.font, NSForegroundColorAttributeName: preferences.drawing.foregroundColor]
+        )
+        let ev = EasyTipView(attributedText: attributedText, preferences: preferences, delegate: delegate)
+        ev.show(animated: animated, forView: view, withinSuperview: superview)
+    }
+    
     public class func show(animated: Bool = true, forView view: UIView, withinSuperview superview: UIView? = nil, attributedText:  NSAttributedString, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
         
         let ev = EasyTipView(attributedText: attributedText, preferences: preferences, delegate: delegate)
@@ -181,10 +199,10 @@ open class EasyTipView: UIView {
             public var foregroundColor     = UIColor.white
             public var backgroundColor     = UIColor.red
             public var arrowPosition       = ArrowPosition.any
-//            public var textAlignment       = NSTextAlignment.center
+            public var textAlignment       = NSTextAlignment.center
             public var borderWidth         = CGFloat(0)
             public var borderColor         = UIColor.clear
-//            public var font                = UIFont.systemFont(ofSize: 15)
+            public var font                = UIFont.systemFont(ofSize: 15)
         }
         
         public struct Positioning {
@@ -275,6 +293,21 @@ open class EasyTipView: UIView {
     open static var globalPreferences = Preferences()
     
     // MARK:- Initializer -
+    
+    public init (text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
+        let attributedText = NSAttributedString(string: text, attributes:
+            [NSFontAttributeName: preferences.drawing.font, NSForegroundColorAttributeName: preferences.drawing.foregroundColor]
+        )
+        
+        self.attributedText = attributedText
+        self.preferences = preferences
+        self.delegate = delegate
+        
+        super.init(frame: CGRect.zero)
+        
+        self.backgroundColor = UIColor.clear
+        NotificationCenter.default.addObserver(self, selector: #selector(handleRotation), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+    }
     
     public init (attributedText: NSAttributedString, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
         
