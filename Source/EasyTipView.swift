@@ -73,7 +73,7 @@ public extension EasyTipView {
     public class func show(animated: Bool = true, forView view: UIView, withinSuperview superview: UIView? = nil, text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
         
         let attributedText = NSAttributedString(string: text, attributes:
-            [NSFontAttributeName: preferences.drawing.font, NSForegroundColorAttributeName: preferences.drawing.foregroundColor]
+            [.font: preferences.drawing.font, .foregroundColor: preferences.drawing.foregroundColor]
         )
         let ev = EasyTipView(attributedText: attributedText, preferences: preferences, delegate: delegate)
         ev.show(animated: animated, forView: view, withinSuperview: superview)
@@ -153,7 +153,7 @@ public extension EasyTipView {
         let damping = preferences.animating.springDamping
         let velocity = preferences.animating.springVelocity
         
-        UIView.animate(withDuration: preferences.animating.dismissDuration, delay: 0, usingSpringWithDamping: damping, initialSpringVelocity: velocity, options: [.curveEaseInOut], animations: { _ in
+        UIView.animate(withDuration: preferences.animating.dismissDuration, delay: 0, usingSpringWithDamping: damping, initialSpringVelocity: velocity, options: [.curveEaseInOut], animations: {
             self.transform = self.preferences.animating.dismissTransform
             self.alpha = self.preferences.animating.dismissFinalAlpha
         }) { (finished) -> Void in
@@ -249,10 +249,8 @@ open class EasyTipView: UIView {
     }
     
     override open var description: String {
-        
-        let type = "'\(String(reflecting: type(of: self)))'".components(separatedBy: ".").last!
-        
-        return "<< \(type) with text : '\(attributedText)' >>"
+        let typeName = "'\(String(reflecting: type(of: self)))'".components(separatedBy: ".").last!
+        return "<< \(typeName) with text : '\(attributedText)' >>"
     }
     
     fileprivate weak var presentingView: UIView?
@@ -296,7 +294,7 @@ open class EasyTipView: UIView {
     
     public init (text: String, preferences: Preferences = EasyTipView.globalPreferences, delegate: EasyTipViewDelegate? = nil){
         let attributedText = NSAttributedString(string: text, attributes:
-            [NSFontAttributeName: preferences.drawing.font, NSForegroundColorAttributeName: preferences.drawing.foregroundColor]
+            [.font: preferences.drawing.font, .foregroundColor: preferences.drawing.foregroundColor]
         )
         
         self.attributedText = attributedText
@@ -335,11 +333,11 @@ open class EasyTipView: UIView {
     
     // MARK: - Rotation support -
     
-    func handleRotation() {
+    @objc func handleRotation() {
         guard let sview = superview
             , presentingView != nil else { return }
         
-        UIView.animate(withDuration: 0.3, animations: { _ in
+        UIView.animate(withDuration: 0.3, animations: {
             self.arrange(withinSuperview: sview)
             self.setNeedsDisplay()
         })
@@ -449,7 +447,7 @@ open class EasyTipView: UIView {
     
     // MARK:- Callbacks -
     
-    func handleTap() {
+    @objc func handleTap() {
         dismiss()
     }
     
