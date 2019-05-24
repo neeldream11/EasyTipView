@@ -257,7 +257,7 @@ open class EasyTipView: UIView {
     fileprivate weak var delegate: EasyTipViewDelegate?
     fileprivate var arrowTip = CGPoint.zero
     fileprivate(set) open var preferences: Preferences
-    open let attributedText: NSAttributedString
+    public let attributedText: NSAttributedString
     
     // MARK: - Lazy variables -
     
@@ -288,7 +288,7 @@ open class EasyTipView: UIView {
     
     // MARK: - Static variables -
     
-    open static var globalPreferences = Preferences()
+    public static var globalPreferences = Preferences()
     
     // MARK:- Initializer -
     
